@@ -1,4 +1,5 @@
 import './App.css'
+import { Dnd } from './components/Dnd';
 import InputWithLabel from './components/InputWithLabel';
 import { List } from './components/List';
 import { Search } from './components/Search';
@@ -39,14 +40,16 @@ export const App = () => {
   return (
     <>
       <h1>{title}</h1>
-      <Search searchTerm={searchTerm} onSearch={handleSearch} />
+      {/* <Search searchTerm={searchTerm} onSearch={handleSearch} />
       <br />
       <br />
       <InputWithLabel id="input-with-label" label="Search : " />
 
-      <hr />
+      <hr /> */}
 
-      <List list={searchedStories}/>
+      {/* <List list={searchedStories} /> */}
+      
+      <Dnd />
     </>
   );
 }
