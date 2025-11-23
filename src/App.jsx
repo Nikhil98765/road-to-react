@@ -30,6 +30,7 @@ export const App = () => {
 
   const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
   const [stories, setStories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getAsyncStories = () => {
     return new Promise((resolve) => {
@@ -40,7 +41,12 @@ export const App = () => {
   }
 
   useEffect(() => {
-    getAsyncStories().then(results => setStories(results));
+    setIsLoading(true);
+    getAsyncStories()
+      .then(results => {
+        setStories(results);
+      })
+      .finally(() => setIsLoading(false))
   }, []);
 
   function handleSearch(event) {
@@ -65,8 +71,12 @@ export const App = () => {
       {/* <InputWithLabel id="input-with-label" label="Search : " /> */}
 
       <hr />
-
-      <List list={searchedStories} deleteHandler={deleteStory} />
+      {
+        isLoading ? (
+        <h3>Loading...</h3>
+      ) : (
+        <List list={searchedStories} deleteHandler={deleteStory} />
+      )}
 
       {/* <Dnd /> */}
     </>
