@@ -6,6 +6,7 @@ export const List = ({ list, deleteHandler }) => {
     <ul>
       {list.map((item) => (
         <Item
+          key={item.objectID}
           deleteHandler={deleteHandler}
           {...item}
         />

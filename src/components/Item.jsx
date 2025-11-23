@@ -10,7 +10,7 @@ const Item = ({
   deleteHandler,
 }) => {
   return (
-    <li key={objectID}>
+    <li>
       <span>
         <a href={url}>{title}</a>
         <br />
