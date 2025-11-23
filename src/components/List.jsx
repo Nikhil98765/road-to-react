@@ -1,17 +1,15 @@
 
-import React from 'react'
 import Item from "./Item.jsx";
 
-export const List = ({list}) => {
-
+export const List = ({ list, deleteHandler }) => {
   return (
     <ul>
-      {list.map(({objectID, ...item}) => (
+      {list.map((item) => (
         <Item
-          key={objectID}
+          deleteHandler={deleteHandler}
           {...item}
         />
       ))}
     </ul>
   );
-}
+};

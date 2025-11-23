@@ -1,6 +1,7 @@
+import {useState} from 'react';
 import './App.css'
 import { Dnd } from './components/Dnd';
-import InputWithLabel from './components/InputWithLabel';
+import {InputWithLabel} from './components/InputWithLabel';
 import { List } from './components/List';
 import { Search } from './components/Search';
 import { useStorageState } from './hooks/useStorageState';
@@ -28,6 +29,7 @@ const list = [
 export const App = () => {
 
   const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
+  const [stories, setStories] = useState(list);
 
   function handleSearch(event) {
     setSearchTerm(event.target.value);
@@ -35,21 +37,26 @@ export const App = () => {
     // localStorage.setItem("searchTerm", event.target.value);
   }
 
-  const searchedStories = list.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  const deleteStory = (id) => {
+    setStories(stories.filter((story) => story.objectID !== id));
+  }
+
+  const searchedStories = stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <>
       <h1>{title}</h1>
-      {/* <Search searchTerm={searchTerm} onSearch={handleSearch} />
+      <Search searchTerm={searchTerm} onSearch={handleSearch} />
       <br />
       <br />
-      <InputWithLabel id="input-with-label" label="Search : " />
+      {/* <InputWithLabel id="input-with-label" label="Search : " /> */}
 
-      <hr /> */}
+      <hr />
 
-      {/* <List list={searchedStories} /> */}
-      
-      <Dnd />
+      <List list={searchedStories} deleteHandler={deleteStory} />
+
+      {/* <Dnd /> */}
     </>
   );
 }
