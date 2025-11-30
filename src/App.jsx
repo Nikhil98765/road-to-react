@@ -1,13 +1,14 @@
-import {useEffect, useReducer, useState} from 'react';
+import {useEffect, useReducer, useRef, useState} from 'react';
 import './App.css'
 import { Dnd } from './components/Dnd';
 import {InputWithLabel} from './components/InputWithLabel';
 import { List } from './components/List';
 import { Search } from './components/Search';
-import { useStorageState } from './hooks/useStorageState';
+// import { useStorageState } from './hooks/useStorageState';
 
 const title = "Hello React";
-const storyEndpoint = "https://hn.algolia.com/api/v1/search?query=React";
+const storyEndpoint = "https://hn.algolia.com/api/v1/search?query=";
+const debounceValue = 600;
 // const list = [
 //   {
 //     title: "React",
@@ -29,9 +30,11 @@ const storyEndpoint = "https://hn.algolia.com/api/v1/search?query=React";
 
 export const App = () => {
 
-  const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
+  // const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
+  const [searchTerm, setSearchTerm] = useState('');
   // const [stories, setStories] = useState([]);
   // const [isLoading, setIsLoading] = useState(false);
+  let timer = useRef(null);
 
   const ACTIONS = {
     STORIES_FETCH_SUCCESS: "STORIES_FETCH_SUCCESS",
@@ -91,26 +94,36 @@ export const App = () => {
   useEffect(() => {
     // setIsLoading(true);
     storiesDispatcher({
-      type: ACTIONS.STORIES_FETCH_INIT
+      type: ACTIONS.STORIES_FETCH_INIT,
     });
 
-    fetch(`${storyEndpoint}react`).then(response => response.json())
-      .then(results => {
-        // setStories(results);
-        storiesDispatcher({
-          type: ACTIONS.STORIES_FETCH_SUCCESS,
-          payload: results.hits,
-        });
-      }, () => {
-        storiesDispatcher({
-          type: ACTIONS.STORIES_FETCH_FAILURE
-        })
-      })
-      
-  }, []);
+    timer.current = setTimeout(() => {
+      fetch(`${storyEndpoint}${searchTerm}`)
+        .then((response) => response.json())
+        .then(
+          (results) => {
+            // setStories(results);
+            storiesDispatcher({
+              type: ACTIONS.STORIES_FETCH_SUCCESS,
+              payload: results.hits,
+            });
+          },
+          () => {
+            storiesDispatcher({
+              type: ACTIONS.STORIES_FETCH_FAILURE,
+            });
+          }
+        );
+    }, debounceValue);
+
+    return () => {
+      clearTimeout(timer.current);
+    }
+    
+  }, [searchTerm]);
 
   function handleSearch(event) {
-    setSearchTerm(event.target.value);
+      setSearchTerm(event.target.value);
     // Side effect, we can handle the side effects using useEffect
     // localStorage.setItem("searchTerm", event.target.value);
   }
@@ -126,7 +139,7 @@ export const App = () => {
     });
   }
 
-  const searchedStories = stories.data.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  // const searchedStories = stories.data.filter(story => story.title?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <>
@@ -144,7 +157,7 @@ export const App = () => {
         stories.isLoading ? (
         <h3>Loading...</h3>
       ) : (
-        <List list={searchedStories} deleteHandler={deleteStory} />
+        <List list={stories.data} deleteHandler={deleteStory} />
       )}
 
       {/* <Dnd /> */}
