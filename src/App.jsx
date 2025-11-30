@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useReducer, useState} from 'react';
 import './App.css'
 import { Dnd } from './components/Dnd';
 import {InputWithLabel} from './components/InputWithLabel';
@@ -29,8 +29,26 @@ const list = [
 export const App = () => {
 
   const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
-  const [stories, setStories] = useState([]);
+  // const [stories, setStories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const ACTIONS = {
+    SET_STORIES: "SET_STORIES",
+    REMOVE_STORY: "REMOVE_STORY",
+  };
+
+  const storiesReducer = (state, {type, payload}) => {
+    switch (type) {
+      case ACTIONS.SET_STORIES:
+        return payload;
+      case ACTIONS.REMOVE_STORY:
+        return state.filter((story) => story.objectID !== payload.objectID);
+      default:
+        throw new Error();
+    }
+  }
+
+  const [stories, storiesDispatcher] = useReducer(storiesReducer, []);
 
   const getAsyncStories = () => {
     return new Promise((resolve) => {
@@ -44,7 +62,11 @@ export const App = () => {
     setIsLoading(true);
     getAsyncStories()
       .then(results => {
-        setStories(results);
+        // setStories(results);
+        storiesDispatcher({
+          type: ACTIONS.SET_STORIES,
+          payload: results,
+        });
       })
       .finally(() => setIsLoading(false))
   }, []);
@@ -57,7 +79,13 @@ export const App = () => {
 
 
   const deleteStory = (id) => {
-    setStories(stories.filter((story) => story.objectID !== id));
+    // setStories(stories.filter((story) => story.objectID !== id));
+    storiesDispatcher({
+      type: ACTIONS.REMOVE_STORY,
+      payload: {
+        objectID: id,
+      },
+    });
   }
 
   const searchedStories = stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
