@@ -8,7 +8,7 @@ import { Search } from './components/Search';
 
 const title = "Hello React";
 const storyEndpoint = "https://hn.algolia.com/api/v1/search?query=";
-const debounceValue = 600;
+// const debounceValue = 600;
 // const list = [
 //   {
 //     title: "React",
@@ -32,9 +32,10 @@ export const App = () => {
 
   // const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
   const [searchTerm, setSearchTerm] = useState('');
+  const [url, setUrl] = useState(`${storyEndpoint}${searchTerm}`);
   // const [stories, setStories] = useState([]);
   // const [isLoading, setIsLoading] = useState(false);
-  let timer = useRef(null);
+  // let timer = useRef(null);
 
   const ACTIONS = {
     STORIES_FETCH_SUCCESS: "STORIES_FETCH_SUCCESS",
@@ -97,29 +98,29 @@ export const App = () => {
       type: ACTIONS.STORIES_FETCH_INIT,
     });
 
-    timer.current = setTimeout(() => {
-      fetch(`${storyEndpoint}${searchTerm}`)
-        .then((response) => response.json())
-        .then(
-          (results) => {
-            // setStories(results);
-            storiesDispatcher({
-              type: ACTIONS.STORIES_FETCH_SUCCESS,
-              payload: results.hits,
-            });
-          },
-          () => {
-            storiesDispatcher({
-              type: ACTIONS.STORIES_FETCH_FAILURE,
-            });
-          }
-        );
-    }, debounceValue);
+    // timer.current = setTimeout(() => {
+    fetch(`${url}`)
+      .then((response) => response.json())
+      .then(
+        (results) => {
+          // setStories(results);
+          storiesDispatcher({
+            type: ACTIONS.STORIES_FETCH_SUCCESS,
+            payload: results.hits,
+          });
+        },
+        () => {
+          storiesDispatcher({
+            type: ACTIONS.STORIES_FETCH_FAILURE,
+          });
+        }
+      );
+    // }, debounceValue);
 
-    return () => {
-      clearTimeout(timer.current);
-    };
-  }, [searchTerm])
+    // return () => {
+    //   clearTimeout(timer.current);
+    // };
+  }, [url]);
 
   useEffect(() => {
     handleFetchStories();
@@ -148,6 +149,19 @@ export const App = () => {
     <>
       <h1>{title}</h1>
       <Search searchTerm={searchTerm} onSearch={handleSearch} />
+      <button
+        style={{
+          borderRadius: "2rem",
+          backgroundColor: "grey",
+          width: "6rem",
+          height: "2rem",
+          padding: "0.10rem",
+          margin: "0.25rem",
+        }}
+        onClick={() => setUrl(`${storyEndpoint}${searchTerm}`)}
+      >
+        Search
+      </button>
       <br />
       <br />
       {/* <InputWithLabel id="input-with-label" label="Search : " /> */}
@@ -156,8 +170,7 @@ export const App = () => {
 
       {stories.isError && <p>Something went wrong ...</p>}
 
-      {
-        stories.isLoading ? (
+      {stories.isLoading ? (
         <h3>Loading...</h3>
       ) : (
         <List list={stories.data} deleteHandler={deleteStory} />
