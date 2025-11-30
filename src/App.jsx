@@ -1,4 +1,4 @@
-import {useEffect, useReducer, useRef, useState} from 'react';
+import {useCallback, useEffect, useReducer, useRef, useState} from 'react';
 import './App.css'
 import { Dnd } from './components/Dnd';
 import {InputWithLabel} from './components/InputWithLabel';
@@ -91,7 +91,7 @@ export const App = () => {
   //   })
   // }
 
-  useEffect(() => {
+  const handleFetchStories = useCallback(() => {
     // setIsLoading(true);
     storiesDispatcher({
       type: ACTIONS.STORIES_FETCH_INIT,
@@ -118,9 +118,12 @@ export const App = () => {
 
     return () => {
       clearTimeout(timer.current);
-    }
-    
-  }, [searchTerm]);
+    };
+  }, [searchTerm])
+
+  useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
 
   function handleSearch(event) {
       setSearchTerm(event.target.value);
