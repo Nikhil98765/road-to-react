@@ -30,45 +30,81 @@ export const App = () => {
 
   const [searchTerm, setSearchTerm] = useStorageState('search', 'react');
   // const [stories, setStories] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const ACTIONS = {
-    SET_STORIES: "SET_STORIES",
+    STORIES_FETCH_SUCCESS: "STORIES_FETCH_SUCCESS",
     REMOVE_STORY: "REMOVE_STORY",
+    STORIES_FETCH_INIT: "STORIES_FETCH_INIT",
+    STORIES_FETCH_FAILURE: "STORIES_FETCH_FAILURE"
   };
 
   const storiesReducer = (state, {type, payload}) => {
     switch (type) {
-      case ACTIONS.SET_STORIES:
-        return payload;
-      case ACTIONS.REMOVE_STORY:
-        return state.filter((story) => story.objectID !== payload.objectID);
+      case ACTIONS.STORIES_FETCH_SUCCESS:
+        return {
+          data: payload,
+          isLoading: false,
+          isError: false,
+        };
+      case ACTIONS.REMOVE_STORY: {
+        const filteredStories = state.filter((story) => story.objectID !== payload.objectID);
+        return {
+          data: filteredStories,
+          isLoading: false,
+          isError: false,
+        }
+      }
+      case ACTIONS.STORIES_FETCH_INIT:
+        return {
+          data: [],
+          isLoading: true,
+          isError: false,
+        };
+      case ACTIONS.STORIES_FETCH_FAILURE:
+        return {
+          data: [],
+          isLoading: false,
+          isError: true,
+        }
       default:
         throw new Error();
     }
   }
 
-  const [stories, storiesDispatcher] = useReducer(storiesReducer, []);
+  const [stories, storiesDispatcher] = useReducer(storiesReducer, {
+    data: [],
+    isLoading: false,
+    isError: false
+  });
 
   const getAsyncStories = () => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve(list);
+        // resolve(list);
+        reject();
       }, 2000);
     })
   }
 
   useEffect(() => {
-    setIsLoading(true);
+    // setIsLoading(true);
+    storiesDispatcher({
+      type: ACTIONS.STORIES_FETCH_INIT
+    })
     getAsyncStories()
       .then(results => {
         // setStories(results);
         storiesDispatcher({
-          type: ACTIONS.SET_STORIES,
+          type: ACTIONS.STORIES_FETCH_SUCCESS,
           payload: results,
         });
+      }, () => {
+        storiesDispatcher({
+          type: ACTIONS.STORIES_FETCH_FAILURE
+        })
       })
-      .finally(() => setIsLoading(false))
+      
   }, []);
 
   function handleSearch(event) {
@@ -88,7 +124,7 @@ export const App = () => {
     });
   }
 
-  const searchedStories = stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const searchedStories = stories.data.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <>
@@ -99,8 +135,11 @@ export const App = () => {
       {/* <InputWithLabel id="input-with-label" label="Search : " /> */}
 
       <hr />
+
+      {stories.isError && <p>Something went wrong ...</p>}
+
       {
-        isLoading ? (
+        stories.isLoading ? (
         <h3>Loading...</h3>
       ) : (
         <List list={searchedStories} deleteHandler={deleteStory} />
