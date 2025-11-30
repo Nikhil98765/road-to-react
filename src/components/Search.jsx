@@ -3,7 +3,6 @@ import React from 'react'
 
 // controller component
 export const Search = ({ searchTerm, onSearch }) => {
-  console.log("🚀 ~ Search renders");
 
   // we can return multiple elements without top level element by returning array but each element should have key prop.
   // return [

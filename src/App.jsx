@@ -1,4 +1,6 @@
-import {useCallback, useEffect, useReducer, useRef, useState} from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import axios from 'axios';
+
 import './App.css'
 import { Dnd } from './components/Dnd';
 import {InputWithLabel} from './components/InputWithLabel';
@@ -92,29 +94,39 @@ export const App = () => {
   //   })
   // }
 
-  const handleFetchStories = useCallback(() => {
+  const handleFetchStories = useCallback(async () => {
     // setIsLoading(true);
     storiesDispatcher({
       type: ACTIONS.STORIES_FETCH_INIT,
     });
 
     // timer.current = setTimeout(() => {
-    fetch(`${url}`)
-      .then((response) => response.json())
-      .then(
-        (results) => {
-          // setStories(results);
-          storiesDispatcher({
-            type: ACTIONS.STORIES_FETCH_SUCCESS,
-            payload: results.hits,
-          });
-        },
-        () => {
-          storiesDispatcher({
+    try {
+      const results = await axios.get(url);
+      storiesDispatcher({
+        type: ACTIONS.STORIES_FETCH_SUCCESS,
+        payload: results.data.hits,
+      });
+    } catch (error) {
+      storiesDispatcher({
             type: ACTIONS.STORIES_FETCH_FAILURE,
-          });
-        }
-      );
+      });
+    }
+
+      // .then(
+      //   (results) => {
+      //     // setStories(results);
+      //     storiesDispatcher({
+      //       type: ACTIONS.STORIES_FETCH_SUCCESS,
+      //       payload: results.data.hits,
+      //     });
+      //   },
+      //   () => {
+      //     storiesDispatcher({
+      //       type: ACTIONS.STORIES_FETCH_FAILURE,
+      //     });
+      //   }
+      // );
     // }, debounceValue);
 
     // return () => {
