@@ -7,24 +7,25 @@ import { Search } from './components/Search';
 import { useStorageState } from './hooks/useStorageState';
 
 const title = "Hello React";
-const list = [
-  {
-    title: "React",
-    url: "https://react.dev/",
-    author: "Jordan Walke",
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: "Angular",
-    url: "https://redux.js.org/",
-    author: "Dan Abramov, Andrew Clark",
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-];
+const storyEndpoint = "https://hn.algolia.com/api/v1/search?query=React";
+// const list = [
+//   {
+//     title: "React",
+//     url: "https://react.dev/",
+//     author: "Jordan Walke",
+//     num_comments: 3,
+//     points: 4,
+//     objectID: 0,
+//   },
+//   {
+//     title: "Angular",
+//     url: "https://redux.js.org/",
+//     author: "Dan Abramov, Andrew Clark",
+//     num_comments: 2,
+//     points: 5,
+//     objectID: 1,
+//   },
+// ];
 
 export const App = () => {
 
@@ -78,26 +79,27 @@ export const App = () => {
     isError: false
   });
 
-  const getAsyncStories = () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // resolve(list);
-        reject();
-      }, 2000);
-    })
-  }
+  // const getAsyncStories = () => {
+  //   return new Promise((resolve, reject) => {
+  //     setTimeout(() => {
+  //       // resolve(list);
+  //       reject();
+  //     }, 2000);
+  //   })
+  // }
 
   useEffect(() => {
     // setIsLoading(true);
     storiesDispatcher({
       type: ACTIONS.STORIES_FETCH_INIT
-    })
-    getAsyncStories()
+    });
+
+    fetch(`${storyEndpoint}react`).then(response => response.json())
       .then(results => {
         // setStories(results);
         storiesDispatcher({
           type: ACTIONS.STORIES_FETCH_SUCCESS,
-          payload: results,
+          payload: results.hits,
         });
       }, () => {
         storiesDispatcher({
