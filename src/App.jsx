@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import axios from 'axios';
 
 import './App.css'
@@ -6,6 +6,9 @@ import { Dnd } from './components/Dnd';
 import {InputWithLabel} from './components/InputWithLabel';
 import { List } from './components/List';
 import { Search } from './components/Search';
+import { SearchForm } from './components/SearchForm';
+import { LoginFormUncontrolled } from './components/LoginFormUncontrolled';
+import { LoginFormControlled } from './components/LoginFormControlled';
 // import { useStorageState } from './hooks/useStorageState';
 
 const title = "Hello React";
@@ -160,20 +163,7 @@ export const App = () => {
   return (
     <>
       <h1>{title}</h1>
-      <Search searchTerm={searchTerm} onSearch={handleSearch} />
-      <button
-        style={{
-          borderRadius: "2rem",
-          backgroundColor: "grey",
-          width: "6rem",
-          height: "2rem",
-          padding: "0.10rem",
-          margin: "0.25rem",
-        }}
-        onClick={() => setUrl(`${storyEndpoint}${searchTerm}`)}
-      >
-        Search
-      </button>
+      <SearchForm {...{ storyEndpoint, searchTerm, handleSearch, setUrl }} />
       <br />
       <br />
       {/* <InputWithLabel id="input-with-label" label="Search : " /> */}
@@ -189,6 +179,9 @@ export const App = () => {
       )}
 
       {/* <Dnd /> */}
+
+      {/* <LoginFormUncontrolled /> */}
+      <LoginFormControlled></LoginFormControlled>
     </>
   );
 }
